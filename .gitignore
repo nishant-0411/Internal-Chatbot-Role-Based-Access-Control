@@ -205,3 +205,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#Embedded data
+vector_db/*
+!vector_db/.gitkeep
+
+# Planning files
+PROJECT_PLAN.md
+TODO.md
