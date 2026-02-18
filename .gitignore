@@ -213,3 +213,20 @@ vector_db/*
 # Planning files
 PROJECT_PLAN.md
 TODO.md
+
+# Database
+*.db
+*.sqlite3
+
+# Chroma DB
+vector_db/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+
+# Environment variables
+.env

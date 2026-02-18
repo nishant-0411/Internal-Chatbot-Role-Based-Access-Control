@@ -8,3 +8,6 @@ fastapi
 uvicorn
 pandas 
 scikit-learn
+sqlalchemy
+passlib[bcrypt] 
+python-jose
