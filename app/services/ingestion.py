@@ -6,10 +6,10 @@ import pandas as pd
 import chromadb
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
+from app.core.config import settings
 
 data_path = "./data"
 store_path = "./vector_db"
-COLLECTION_NAME = "internal_docs"
 
 role_folder_mapping = {
     # department : who can access
@@ -24,12 +24,7 @@ embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 text_splitters = RecursiveCharacterTextSplitter(chunk_size = 500, chunk_overlap = 50)
 client = chromadb.PersistentClient(path = store_path)
 
-try :
-    client.delete_collection(COLLECTION_NAME)
-except:
-    pass
-
-collection = client.get_or_create_collection(name=COLLECTION_NAME)
+collection = client.get_or_create_collection(name=settings.COLLECTION_NAME)
 
 def read_files(filepath):
     try:
@@ -46,6 +41,14 @@ def read_files(filepath):
     return None
 
 def ingest():
+    try:
+        client.delete_collection(settings.COLLECTION_NAME)
+    except:
+        pass
+    
+    global collection
+    collection = client.get_or_create_collection(name=settings.COLLECTION_NAME)
+
     for folder in os.listdir(data_path):
 
         folder_path = os.path.join(data_path, folder)

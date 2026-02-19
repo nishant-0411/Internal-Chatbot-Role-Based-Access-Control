@@ -1,9 +1,8 @@
 import chromadb
-
-COLLECTION_NAME = "internal_docs"
+from app.core.config import settings
 
 client = chromadb.PersistentClient(path = "./vector_db")
-collection = client.get_or_create_collection(name=COLLECTION_NAME)
+collection = client.get_or_create_collection(name=settings.COLLECTION_NAME)
 
 results = collection.query(
     query_texts=["What is the system architecture?"],

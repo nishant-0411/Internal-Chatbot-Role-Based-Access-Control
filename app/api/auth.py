@@ -29,7 +29,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not existing:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            details = "user does not exist"
+            detail = "user does not exist"
         )
     
     if not verify_password(form_data.password, existing.hashed_password):

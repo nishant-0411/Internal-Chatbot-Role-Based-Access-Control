@@ -11,3 +11,4 @@ scikit-learn
 sqlalchemy
 passlib[bcrypt] 
 python-jose
+ollama # ollama pull phi3
