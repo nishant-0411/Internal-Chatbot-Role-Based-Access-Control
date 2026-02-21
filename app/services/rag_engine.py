@@ -3,6 +3,8 @@
 from app.services.ingestion import collection, role_folder_mapping
 import requests
 from app.core.config import settings
+from app.core.logger import logger
+import time
 
 def retrieve_context(query:str, user_role:str):
 
@@ -36,8 +38,21 @@ def retrieve_context(query:str, user_role:str):
     return "\n\n".join(documents)
 
 
+def estimate_tokens(text: str):
+    return len(text)
+
+
 def generate_response(query: str, user_role: str):
+    start_time= time.time()
+    logger.info(f"Incoming query: {query}")
+    logger.info(f"User role: {user_role}")
+
     context = retrieve_context(query, user_role)
+
+    if context:
+        logger.info(f"Context Found | Length: {len(context)} characters")
+    else:
+        logger.warning("No internal context found. Using fallback mode.")
 
     if not context:
         prompt = f"""
@@ -72,6 +87,9 @@ def generate_response(query: str, user_role: str):
         Answer:
         """
 
+    input_tokens = estimate_tokens(prompt)
+    logger.info(f"Estimated Input Tokens: {input_tokens}")
+
     try:
         response = requests.post(
             settings.OLLAMA_URL,
@@ -83,10 +101,22 @@ def generate_response(query: str, user_role: str):
             timeout=60
         )
 
-        return response.json()["response"]
+        answer = response.json()["response"]
+
+        output_tokens = estimate_tokens(answer)
+        total_time = round(time.time() - start_time, 2)
+
+        logger.info(f"Estimated Output Tokens: {output_tokens}")
+        logger.info(f"Response Time: {total_time} seconds")
+        logger.info("Response generated successfully.")
+        logger.info("-" * 60)
+
+        return answer
 
     except Exception as e:
         error_msg = str(e)
+
+        logger.error(f"Error generating response: {error_msg}")
 
         if "429" in error_msg or "Quota exceeded" in error_msg:
             return "I'm currently experiencing high traffic. Please try again in a minute."
