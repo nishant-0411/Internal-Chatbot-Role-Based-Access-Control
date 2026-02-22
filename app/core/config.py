@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     COLLECTION_NAME: str 
     ALGORITHM: str
     DATABASE_URL: str
+    MAX_HISTORY: int
+    SIMILARITY_THRESHOLD: float
+    CSV_PATH: str
+    DEFAULT_PASSWORD: str
+    DATA_PATH: str
+    VECTOR_STORE_PATH: str
 
     class Config:
         env_file = ".env"

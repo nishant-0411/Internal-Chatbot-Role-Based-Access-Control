@@ -1,13 +1,14 @@
-import chromadb
-from app.core.config import settings
+from app.services.ingestion import get_collection
 
-client = chromadb.PersistentClient(path = "./vector_db")
-collection = client.get_or_create_collection(name=settings.COLLECTION_NAME)
+collection = get_collection()
 
 results = collection.query(
-    query_texts=["What is the system architecture?"],
-    where={"allowed_roles": {"$contains": "marketing"}},
-    n_results=3
+    query_texts=["Q4 revenue target"],
+    n_results=5,
+    include=["documents", "metadatas"]
 )
 
-print(results["documents"])
+for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
+    print("\n----")
+    print("META:", meta)
+    print("DOC:", doc[:300])

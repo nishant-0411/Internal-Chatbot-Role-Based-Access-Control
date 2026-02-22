@@ -1,53 +1,93 @@
-from models import Base, User
-from app.core.config import engine, SessionLocal
+import os
+import pandas as pd
+from app.core.config import engine, SessionLocal, settings
 from app.core.security import hash_password
 from app.core.logger import logger
+from app.models import Base, Employee
 
-logger.info("Starting database seeding process...")
+def map_department_to_role(department: str):
+    department = department.lower()
 
-Base.metadata.create_all(bind = engine)
-logger.info("Database tables ensured.")
+    mapping = {
+        "finance": "finance",
+        "marketing": "marketing",
+        "hr": "hr",
+        "technology": "engineering",
+        "data": "engineering",
+        "quality assurance": "engineering",
+        "product": "engineering",
+        "risk": "finance",
+        "compliance": "finance",
+        "sales": "marketing",
+        "operations": "employee",
+        "design": "marketing"
+    }
+
+    return mapping.get(department, "employee")
+
+
+logger.info("=" * 60)
+logger.info("Starting fresh database setup...")
+
+# Drop and recreate tables
+Base.metadata.drop_all(bind=engine)
+logger.info("Old tables dropped.")
+
+Base.metadata.create_all(bind=engine)
+logger.info("New tables created.")
+
+print("Actual DB Path:", engine.url)
+print("CSV Path:", settings.CSV_PATH)
+print("Does file exist?:", os.path.exists(settings.CSV_PATH))
 
 db = SessionLocal()
 
-users = [
-    {"username": "Jatin", "password": "1234", "role": "finance"},
-    {"username": "Yash", "password": "1234", "role": "marketing"},
-    {"username": "Kapil", "password": "1234", "role": "engineering"},
-    {"username": "Nishant", "password": "1234", "role": "c-level"},
-]
-
-created_count = 0
-skipped_count = 0
-
 try:
-    for user in users:
-        existing = db.query(User).filter(User.username == user["username"]).first()
+    df = pd.read_csv(settings.CSV_PATH)
 
-        if not existing:
-            db_user = User(
-                username=user["username"],
-                hashed_password=hash_password(user["password"]),
-                role=user["role"]
+    print("Columns:", df.columns)
+    print("Total rows in CSV:", len(df))
+
+    created = 0
+    skipped = 0
+
+    for _, row in df.iterrows():
+        try:
+            role = map_department_to_role(row["department"])
+
+            employee = Employee(
+                employee_id=row["employee_id"],
+                full_name=row["full_name"],
+                email=row["email"],
+                department=row["department"],
+                role=role,
+                manager_id=row["manager_id"],
+                salary=float(row["salary"]),
+                leave_balance=int(row["leave_balance"]),
+                leaves_taken=int(row["leaves_taken"]),
+                attendance_pct=float(row["attendance_pct"]),
+                performance_rating=int(row["performance_rating"]),
+                hashed_password=hash_password(settings.DEFAULT_PASSWORD)
             )
-            db.add(db_user)
-            created_count += 1
-            logger.info(f"User created: {user['username']} | Role: {user['role']}")
-        else:
-            skipped_count += 1
-            logger.warning(f"User already exists, skipped: {user['username']}")
 
-    db.commit()
-    logger.info("Database commit successful.")
+            db.add(employee)
+            db.commit()
+            created += 1
+
+        except Exception as row_error:
+            db.rollback()
+            skipped += 1
+            print(f"⚠️ Skipped row {row['employee_id']} - {row_error}")
+
+    print("✅ Seeding Completed")
+    print("Created:", created)
+    print("Skipped (duplicates or errors):", skipped)
 
 except Exception as e:
     db.rollback()
-    logger.error(f"Error during seeding: {str(e)}")
+    print("🚨 SEEDING FAILED:", e)
 
 finally:
     db.close()
     logger.info("Database session closed.")
-
-logger.info(f"Seeding completed. Created: {created_count}, Skipped: {skipped_count}")
-logger.info("-" * 60)
-
+    logger.info("=" * 60)
