@@ -13,3 +13,5 @@ passlib[bcrypt]
 python-jose
 ollama # ollama pull phi3
 redis
+streamlit
+requests
