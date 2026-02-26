@@ -75,32 +75,29 @@ def generate_response(query: str, user_role: str, conversation_history: Optional
 
     if not context:
         prompt = f"""
-        You are an AI assistant.
+        You are a friendly, intelligent AI assistant for the company.
+        Your goal is to be helpful and polite.
+        
+        If the user is saying hello or making casual conversation, respond naturally and politely.
+        If they are asking a specific question, answer it to the best of your general knowledge.
 
         Conversation History:
         {conversation_context}
 
-        User Question:
+        User Message:
         {query}
-
-        There is no relevant information available in the company knowledge base.
-
-        Inform the user politely that no company data was found.
-        Then provide a helpful answer based on general knowledge.
 
         Answer:
         """
     else:
         prompt = f"""
-        You are a company internal knowledge assistant.
+        You are a friendly, intelligent AI assistant for the company.
+        Your goal is to be helpful and polite.
 
-        You MUST answer using ONLY the information provided in the Company Context below.
-
-        STRICT RULES:
-        - Do NOT provide generic industry advice.
-        - Do NOT make assumptions.
-        - If answer not found say exactly:
-        "I don't have enough information in the company knowledge base."
+        If the user is saying hello or making casual conversation, respond naturally and politely.
+        
+        If the user is asking a specific question, use the provided Company Context below to inform your answer. 
+        If the relevant information is in the Company Context, prioritize that information.
 
         Conversation History:
         {conversation_context}
@@ -108,10 +105,10 @@ def generate_response(query: str, user_role: str, conversation_history: Optional
         Company Context:
         {context}
 
-        User Question:
+        User Message:
         {query}
 
-        Answer strictly based on Company Context:
+        Answer:
         """
 
     input_tokens = estimate_tokens(prompt)
@@ -169,38 +166,34 @@ def stream_response(query: str, user_role: str, conversation_history=None):
             conversation_context += f"{msg['role']}: {msg['content']}\n"
 
     if not context:
-        logger.warning("⚠️ No context found. Entering fallback mode.")
+        logger.warning("⚠️ No context found. Entering general mode.")
 
         prompt = f"""
-        You are an AI assistant.
+        You are a friendly, intelligent AI assistant for the company.
+        Your goal is to be helpful and polite.
+        
+        If the user is saying hello or making casual conversation, respond naturally and politely.
+        If they are asking a specific question, answer it to the best of your general knowledge.
 
         Conversation History:
         {conversation_context}
 
-        User Question:
+        User Message:
         {query}
-
-        There is no relevant information available in the company knowledge base.
-
-        Inform the user politely that no company data was found.
-        Then provide a helpful answer based on general knowledge.
 
         Answer:
         """
     else:
-        logger.info("✅ Context found. Using strict internal mode.")
+        logger.info("✅ Context found. Using contextual internal mode.")
 
         prompt = f"""
-        You are a company internal knowledge assistant.
+        You are a friendly, intelligent AI assistant for the company.
+        Your goal is to be helpful and polite.
 
-        You MUST answer using ONLY the information provided in the Company Context below.
-
-        STRICT RULES:
-        - Do NOT provide generic industry advice.
-        - Do NOT make assumptions.
-        - Do NOT add outside knowledge.
-        - If the answer is not found in the context, say exactly:
-        "I don't have enough information in the company knowledge base."
+        If the user is saying hello or making casual conversation, respond naturally and politely.
+        
+        If the user is asking a specific question, use the provided Company Context below to inform your answer. 
+        If the relevant information is in the Company Context, prioritize that information.
 
         Conversation History:
         {conversation_context}
@@ -208,10 +201,10 @@ def stream_response(query: str, user_role: str, conversation_history=None):
         Company Context:
         {context}
 
-        User Question:
+        User Message:
         {query}
 
-        Answer strictly based only on the Company Context:
+        Answer:
         """
 
     try:
