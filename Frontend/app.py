@@ -239,7 +239,7 @@ def chat_interface():
             try:
                 with requests.post(f"{API_URL}/chat", json=payload, headers=headers, stream=True) as response:
                     if response.status_code == 200:
-                        for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+                        for chunk in response.iter_content(chunk_size=20, decode_unicode=True):
                             if chunk:
                                 full_response += chunk
                                 message_placeholder.markdown(full_response + "▌")

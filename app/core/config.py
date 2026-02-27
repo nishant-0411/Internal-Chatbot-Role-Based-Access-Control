@@ -31,21 +31,11 @@ logger.info(f"Collection Name: {settings.COLLECTION_NAME}")
 logger.info(f"Token Expiry (minutes): {settings.ACCESS_TOKENS_EXPIRE_MINUTES}")
 
 DATABASE_URL = settings.DATABASE_URL
-
 logger.info("Initializing database engine...")
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
-
+engine = create_engine(DATABASE_URL,connect_args={"check_same_thread": False})
 logger.info("Database engine initialized successfully.")
 
-SessionLocal = sessionmaker(
-    autoflush=False,
-    autocommit = False,
-    bind = engine
-)
-
+SessionLocal = sessionmaker(autoflush=False,autocommit = False,bind = engine)
 logger.info("SessionLocal configured successfully.")
 logger.info("-" * 60)

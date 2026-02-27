@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
 from app.api.dependencies import get_current_user
-from app.services.rag_engine import generate_response
 from app.core.cache import add_message, get_messages, redis_client
 from app.core.logger import logger
 from pydantic import BaseModel

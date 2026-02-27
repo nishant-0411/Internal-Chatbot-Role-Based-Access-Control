@@ -14,9 +14,7 @@ except Exception as e:
 
 def add_message(username: str, conversation_id: str, role: str, content: str):
     key = f"chat:{username}:{conversation_id}"
-
     message = json.dumps({"role": role,"content": content})
-
     redis_client.rpush(key, message)
     redis_client.ltrim(key, -MAX_HISTORY, -1)
 

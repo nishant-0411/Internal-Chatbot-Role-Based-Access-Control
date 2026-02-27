@@ -29,7 +29,6 @@ def create_access_tokens(data: dict) -> str:
     logger.info("Access token created successfully.")
     return token
 
-
 def decode_token(token: str):
     try:
         data = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
