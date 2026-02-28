@@ -1,7 +1,3 @@
-langchain
-langchain-community
-chromadb
-sentence-transformers
 python-dotenv
 tiktoken
 fastapi
@@ -15,3 +11,4 @@ ollama # ollama pull phi3
 redis
 streamlit
 requests
+pyyaml

@@ -1,4 +1,4 @@
-from app.services.ingestion import get_collection
+from app.services.index_builder import get_collection
 from app.core.config import settings
 from app.core.logger import logger
 from typing import List, Optional
