@@ -3,8 +3,8 @@
 A fully offline **Role-Based Access Control (RBAC) AI Assistant** built using:
 
 - 🔐 FastAPI (JWT Authentication)
-- 🗂 ChromaDB (Vector Database)
-- 🧠 SentenceTransformers (Embeddings)
+- 🗂 BM25 / TF-IDF Lexical PageIndex (Custom Inverted Index)
+- 🧠 Vectorless Keyword Search (High Precision, Zero Dep)
 - 🤖 Ollama + Phi3 (Local LLM)
 - 📊 Department-Based Access Control
 - 🏗 Clean Modular Backend Architecture
@@ -18,7 +18,7 @@ This project simulates a real **enterprise internal knowledge assistant** that r
 - ✅ JWT-based authentication
 - ✅ Role-Based Access Control (RBAC)
 - ✅ Department-level document filtering
-- ✅ Vector similarity search using ChromaDB
+- ✅ Sub-second lexical similarity search using inverted indexes
 - ✅ Fully offline LLM (no API key required)
 - ✅ Context-aware RAG pipeline
 - ✅ Clean service-based architecture
@@ -34,7 +34,7 @@ FastAPI (JWT Auth)
 ↓  
 Role Validation  
 ↓  
-ChromaDB (Vector Search + Metadata Filter)  
+Lexical PageIndex (Inverted Index Search + Metadata Filter)  
 ↓  
 Ollama (Local LLM - Phi3)  
 ↓  
@@ -57,11 +57,13 @@ Internal-Chatbot-RBAC/
 │   │   ├── security.py
 │   │
 │   ├── services/
-│   │   ├── ingestion.py
-│   │   ├── rag_engine.py
+│   │   ├── index_builder.py
+│   │   ├── rag_orchestrator.py
+│   │   ├── retrieval.py
+│   │   ├── streaming.py
 │
 ├── data/                # Department documents
-├── vector_db/           # Chroma persistent storage
+├── page_index/          # Offline lexical inverted index storage
 ├── main.py
 ├── requirements.txt
 └── README.md
@@ -87,7 +89,7 @@ Internal-Chatbot-RBAC/
 1. User logs in → receives JWT token  
 2. User sends query to `/chat`  
 3. Role extracted from JWT  
-4. ChromaDB retrieves relevant documents filtered by department  
+4. TF-IDF retrieval targets optimal content section filtered by department  
 5. Retrieved context passed to local LLM  
 6. LLM generates answer using ONLY internal context  
 
@@ -190,20 +192,20 @@ Leave this running in background.
 
 ---
 
-# 📚 7️⃣ Ingest Documents into Vector Database
+# 📚 7️⃣ Build Document PageIndex
 
 Run:
 
 ```bash
-python app/services/ingestion.py
+python app/services/index_builder.py
 ```
 
 This will:
 
 - Read department folders inside `/data`
 - Split documents into chunks
-- Generate embeddings
-- Store vectors in `vector_db/`
+- Extract section tokens
+- Generate inverted and IDF indices inside `page_index/`
 
 ---
 
@@ -284,10 +286,10 @@ Includes:
 |------------|------------|
 | Backend | FastAPI |
 | Auth | JWT |
-| Vector DB | ChromaDB |
-| Embeddings | sentence-transformers |
+| Search Engine | Custom TF-IDF PageIndex |
+| Extraction | Regex / NLTK Tokenization |
 | LLM | Ollama (Phi3) |
-| Chunking | RecursiveCharacterTextSplitter |
+| Chunking | Markdown Section Splitting |
 
 ---
 

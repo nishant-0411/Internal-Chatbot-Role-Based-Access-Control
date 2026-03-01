@@ -4,7 +4,7 @@ import re
 import json
 import yaml
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, Counter
 from app.core.config import settings
 from app.core.logger import logger
 
@@ -12,6 +12,13 @@ INDEX_PATH = Path("page_index")
 PAGE_STORE_FILE = INDEX_PATH / "page_store.json"
 INVERTED_INDEX_FILE = INDEX_PATH / "inverted_index.json"
 METADATA_INDEX_FILE = INDEX_PATH / "metadata_index.json"
+IDF_INDEX_FILE = INDEX_PATH / "idf_index.json"
+STOP_WORDS = {
+        "the","is","a","an","in","on","at","for",
+        "of","to","and","or","with","by","this",
+        "that","it","as","be","are","was","were",
+        "what", "how", "why", "when", "where", "who"
+    }
 
 class IndexBuilder:
     def __init__(self):
@@ -74,8 +81,6 @@ class IndexBuilder:
         logger.info(f"PageIndex build completed. Total sections indexed: {total_pages}")
         logger.info("=" * 60)
 
-
-
     def parse_markdown(self, filepath):
         try:
             with open(filepath, "r", encoding="utf-8") as f:
@@ -97,18 +102,19 @@ class IndexBuilder:
     def split_into_sections(self, body):
         sections = re.split(r"\n##+\s+", body)
         return [sec.strip() for sec in sections if sec.strip()]
-    
+
     def tokenize(self, text):
         text = text.lower()
         text = re.sub(r"[^a-z0-9\s]", " ", text)
         tokens = text.split()
+        tokens = [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
         return tokens
 
     def index_content(self, page_id, content):
         tokens = self.tokenize(content)
-        unique_tokens = set(tokens)
-        for token in unique_tokens:
-            self.inverted_index[token].append(page_id)
+        token_counts = Counter(tokens)
+        for token, count in token_counts.items():
+            self.inverted_index[token].append({"page_id": page_id,"tf": count})
     
     def generate_page_id(self, filepath, section_index):
         relative_path = Path(filepath).relative_to(settings.DATA_PATH)
@@ -122,6 +128,17 @@ class IndexBuilder:
             json.dump(dict(self.inverted_index), f, indent=2)
         with open(METADATA_INDEX_FILE, "w", encoding="utf-8") as f:
             json.dump(dict(self.metadata_index), f, indent=2)
+
+        import math
+        idf_index = {}
+        total_docs = len(self.page_store)
+        if total_docs > 0:
+            for token, postings in self.inverted_index.items():
+                doc_freq = len(postings)
+                idf_index[token] = math.log(total_docs / (1 + doc_freq)) + 1.0
+
+        with open(IDF_INDEX_FILE, "w", encoding="utf-8") as f:
+            json.dump(idf_index, f, indent=2)
 
 if __name__ == "__main__":
     builder = IndexBuilder()

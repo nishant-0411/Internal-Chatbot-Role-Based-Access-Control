@@ -11,15 +11,12 @@ class Settings(BaseSettings):
     ACCESS_TOKENS_EXPIRE_MINUTES: int
     OLLAMA_MODEL: str 
     OLLAMA_URL: str 
-    COLLECTION_NAME: str 
     ALGORITHM: str
     DATABASE_URL: str
     MAX_HISTORY: int
-    SIMILARITY_THRESHOLD: float
     CSV_PATH: str
     DEFAULT_PASSWORD: str
     DATA_PATH: str
-    VECTOR_STORE_PATH: str
 
     class Config:
         env_file = ".env"
@@ -27,7 +24,6 @@ class Settings(BaseSettings):
 settings = Settings()
 logger.info("Application settings loaded successfully.")
 logger.info(f"Ollama Model: {settings.OLLAMA_MODEL}")
-logger.info(f"Collection Name: {settings.COLLECTION_NAME}")
 logger.info(f"Token Expiry (minutes): {settings.ACCESS_TOKENS_EXPIRE_MINUTES}")
 
 DATABASE_URL = settings.DATABASE_URL

@@ -4,7 +4,7 @@ from app.core.cache import add_message, get_messages, redis_client
 from app.core.logger import logger
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
-from app.services.rag_engine import stream_response
+from app.services.rag_orchestrator import stream_response
 import time
 
 router = APIRouter()

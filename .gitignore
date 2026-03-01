@@ -230,3 +230,6 @@ venv/
 
 # Environment variables
 .env
+
+#Kiro
+.Kiro

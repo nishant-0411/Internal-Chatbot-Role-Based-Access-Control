@@ -24,4 +24,3 @@ def root():
     logger.info("Root endpoint accessed.")
     return {"Internal Chatbot Backend Running"}
 
-    
