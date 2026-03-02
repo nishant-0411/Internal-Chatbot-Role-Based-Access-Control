@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.api import auth
 from app.api import chat
@@ -15,6 +16,15 @@ async def lifespan(app: FastAPI):
     logger.info("-" * 60)
 
 app = FastAPI(title = "Internal Chatbot Api",lifespan=lifespan)
+
+# Add CORS Middleware to allow requests from the frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production, but "*" is fine for local dev
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 app.include_router(chat.router)

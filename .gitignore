@@ -231,5 +231,5 @@ venv/
 # Environment variables
 .env
 
-#Kiro
-.Kiro
+# Mac OS
+.DS_Store
