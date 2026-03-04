@@ -4,11 +4,21 @@ from contextlib import asynccontextmanager
 from app.api import auth
 from app.api import chat
 from app.core.logger import logger
+from app.services.index_builder import build_index
+from app.services.retrieval import initialize_bm25
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🚀 Internal Chatbot API is starting up...")
     logger.info("Routers registered: auth, chat")
+    
+    # Initialize in-memory BM25 index
+    try:
+        build_index()
+        initialize_bm25()
+    except Exception as e:
+        logger.error(f"Error initializing indexes: {e}")
+
     logger.info("-" * 60)
 
     yield
@@ -33,4 +43,5 @@ app.include_router(chat.router)
 def root():
     logger.info("Root endpoint accessed.")
     return {"Internal Chatbot Backend Running"}
+
 

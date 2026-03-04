@@ -1,29 +1,11 @@
-from pathlib import Path
-import json
 import re
-from collections import defaultdict
+from rank_bm25 import BM25Okapi
+from app.services.index_builder import CHUNKS
 from app.core.logger import logger
 
-INDEX_PATH = Path("page_index")
-PAGE_STORE_FILE = INDEX_PATH / "page_store.json"
-INVERTED_INDEX_FILE = INDEX_PATH / "inverted_index.json"
-METADATA_INDEX_FILE = INDEX_PATH / "metadata_index.json"
-IDF_INDEX_FILE = INDEX_PATH / "idf_index.json"
-
-with open(PAGE_STORE_FILE, 'r', encoding="utf-8") as file:
-    PAGE_STORE = json.load(file)
-
-with open(INVERTED_INDEX_FILE, "r", encoding="utf-8") as file:
-    INVERTED_INDEX = json.load(file)
-
-with open(METADATA_INDEX_FILE, "r", encoding="utf-8") as file:
-    METADATA_INDEX = json.load(file)
-
-if IDF_INDEX_FILE.exists():
-    with open(IDF_INDEX_FILE, "r", encoding="utf-8") as f:
-        IDF_INDEX = json.load(f)
-else:
-    IDF_INDEX = None
+BM25_INDEX = None
+TOKENIZED_CORPUS = []
+CHUNK_REFERENCES = []
 
 STOP_WORDS = {
     "the", "is", "a", "an", "in", "on", "at", "for",
@@ -36,66 +18,61 @@ def tokenize_query(query: str):
     query = query.lower()
     query = re.sub(r"[^a-z0-9\s]", " ", query)
     tokens = query.split()
-    tokens = [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
-    return tokens
+    return [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
 
-def rbac_filter(user_role: str):
-    user_role = user_role.casefold()
-    return set(METADATA_INDEX.get(user_role, []))
+def initialize_bm25():
+    global BM25_INDEX, TOKENIZED_CORPUS, CHUNK_REFERENCES
+    
+    logger.info("Initializing BM25 Index...")
+    TOKENIZED_CORPUS.clear()
+    CHUNK_REFERENCES.clear()
 
-def lexical_search(tokens, allowed_pages):
-    page_scores = defaultdict(float)
-    for token in tokens:
-        if token not in INVERTED_INDEX:
-            continue
-        postings = INVERTED_INDEX[token]
-        for entry in postings:
-            page_id = entry["page_id"]
-            tf = entry["tf"]
-            if page_id not in allowed_pages:
-                continue
-            if IDF_INDEX:
-                idf = IDF_INDEX.get(token, 1.0)
-                score = tf * idf
-            else:
-                score = tf
-            page_scores[page_id] += score
-    return page_scores
+    for chunk in CHUNKS:
+        CHUNK_REFERENCES.append(chunk)
+        tokens = tokenize_query(chunk["content"])
+        TOKENIZED_CORPUS.append(tokens)
 
-def rank_pages(page_score, top_k = 5):
-    ranked = sorted(page_score.items(), key = lambda x : x[1], reverse=True)
-    return ranked[:top_k]
+    if TOKENIZED_CORPUS:
+        BM25_INDEX = BM25Okapi(TOKENIZED_CORPUS)
+    logger.info("BM25 Index initialized successfully.")
 
-def retrieve(query: str, user_role: str, top_k: int = 5,score_threshold: float = 0.5):
-    logger.info("Running lexical retrieval")
+def retrieve(query: str, user_role: str, top_k: int = 3):
+    logger.info("Running BM25 retrieval")
+    
+    if not BM25_INDEX:
+        logger.warning("BM25 index not initialized.")
+        return []
 
     tokens = tokenize_query(query)
     if not tokens:
         logger.warning("No valid tokens found in query")
         return []
-    
-    allowed_pages = rbac_filter(user_role)
-    if not allowed_pages:
-        logger.warning("No pages allowed for this role")
-        return []
-    
-    page_scores = lexical_search(tokens, allowed_pages)
-    if not page_scores:
-        logger.info("No lexical matches found")
-        return []
 
-    ranked_pages = rank_pages(page_scores, top_k)
-    filtered_pages = [(page_id, score) for page_id, score in ranked_pages if score >= score_threshold]
+    scores = BM25_INDEX.get_scores(tokens)
+    user_role = user_role.casefold()
+
+    import heapq
+    scored_chunks = []
+    
+    for idx, score in enumerate(scores):
+        if score <= 0:
+            continue
+            
+        chunk = CHUNK_REFERENCES[idx]
+        roles = chunk.get("role_access")
+        
+        if not roles or user_role in roles:
+            scored_chunks.append((score, chunk))
+
+    top_scored_chunks = heapq.nlargest(top_k, scored_chunks, key=lambda x: x[0])
+    
     contexts = []
-
-    for page_id, score in filtered_pages:
-        page_data = PAGE_STORE.get(page_id)
-        if page_data:
-            contexts.append({
-                "page_id": page_id,
-                "score": score,
-                "title": page_data.get("title"),
-                "content": page_data.get("content")
-            })
+    for score, chunk in top_scored_chunks:
+        contexts.append({
+            "score": score,
+            "title": chunk.get("document_name", "Unknown Document"),
+            "section": chunk.get("section_title", "Unknown Section"),
+            "content": chunk.get("content", "")
+        })
     
     return contexts

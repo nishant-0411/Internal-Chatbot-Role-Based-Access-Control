@@ -94,12 +94,12 @@ const generateChatbotResponse = async (chatbotmessageDiv) => {
 
             const chunk = decoder.decode(value, { stream: true });
             chatbotResponse += chunk;
-            textElement.innerHTML = parseMarkdown(chatbotResponse) + "▌"; // simple blinker
+            textElement.innerHTML = parseMarkdown(chatbotResponse.trimStart()) + "▌"; // simple blinker
             scrollToBottom();
         }
 
         // Final render without cursor
-        textElement.innerHTML = parseMarkdown(chatbotResponse);
+        textElement.innerHTML = parseMarkdown(chatbotResponse.trim());
 
         chatHistory.push({ role: "model", parts: [{ text: chatbotResponse }] });
         console.log("Chat History:", chatHistory);
@@ -163,12 +163,7 @@ const handleformSubmit = (e) => {
     scrollToBottom();
     setTimeout(() => {
         // Create the loading indicator dots container
-        const chatbotmessageHtml = `
-            <div class="message-text">
-                <div class="typing-indicator">
-                    <span></span><span></span><span></span>
-                </div>
-            </div>`;
+        const chatbotmessageHtml = `<div class="message-text"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
         const chatbotmessageDiv = createmessageElement(chatbotmessageHtml, "chatbot-message", "loading");
         chatsContainer.appendChild(chatbotmessageDiv);
         scrollToBottom();

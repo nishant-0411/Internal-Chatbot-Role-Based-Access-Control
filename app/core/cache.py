@@ -26,3 +26,14 @@ def get_messages(username: str, conversation_id: str):
 def delete_conversation(username: str, conversation_id: str):
     key = f"chat:{username}:{conversation_id}"
     redis_client.delete(key)
+
+# In-memory query cache
+QUERY_CACHE = {}
+
+def get_cached_query(query: str, user_role: str):
+    cache_key = f"{user_role.casefold()}:{query.lower().strip()}"
+    return QUERY_CACHE.get(cache_key)
+
+def set_cached_query(query: str, user_role: str, response: str):
+    cache_key = f"{user_role.casefold()}:{query.lower().strip()}"
+    QUERY_CACHE[cache_key] = response
