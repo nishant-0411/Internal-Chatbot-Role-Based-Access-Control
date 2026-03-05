@@ -297,3 +297,19 @@ form {
     transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(59, 53, 46, 0.15);
 }
+
+.registration-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-bottom: 20px;
+}
+
+.registration-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.registration-scroll-container::-webkit-scrollbar-thumb {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+}

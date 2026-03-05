@@ -36,47 +36,67 @@
          <div class="form-box register">
             <form action="">
                 <h2>Registration</h2>
-                <div class="input-box">
-                    <input type="text" placeholder="Full Name" required>
-                    <i class='bx bxs-user'></i>
-                </div>
-                <div class="input-box">
-
-                </div><div class="input-box">
-                    <select required>
-                        <option value="" disabled selected>Select Department</option>
-                        <option value="finance">Finance</option>
-                        <option value="hr">Human Resources</option>
-                        <option value="it">IT</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="operations">Operations</option>
-                    </select>
-                    <i class='bx bx-chevron-down'></i>
-                </div>
-                <div class="input-box">
-                    <select required>
-                        <option value="" disabled selected>Select Role</option>
-                        <option value="manager">Manager</option>
-                        <option value="assistant">Assistant</option>
-                        <option value="executive">Executive</option>
-                        <option value="analyst">Analyst</option>
-                        <option value="intern">Intern</option>
-                    </select>
-                    <i class='bx bx-chevron-down'></i>
-                </div>
-
-
-                <div class="input-box">
-                    <input type="email" placeholder="Email" required>
-                    <i class='bx bxs-envelope' ></i>
-                </div>
-                <div class="input-box">
-                    <input type="password" placeholder="Password" required>
-                    <i class='bx bxs-lock-alt'></i>
-                </div>
-                <div class = "input-box">
-                    <input type="password" placeholder="Confirm Password" required>
-                    <i class='bx bxs-lock-alt'></i>
+                <div class="registration-scroll-container">
+                    <div class="input-box">
+                        <input type="text" id="reg-employee-id" placeholder="Employee ID" required>
+                        <i class='bx bxs-id-card'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" id="reg-full-name" placeholder="Full Name" required>
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="email" id="reg-email" placeholder="Email" required>
+                        <i class='bx bxs-envelope'></i>
+                    </div>
+                    <div class="input-box">
+                        <select id="reg-department" required>
+                            <option value="" disabled selected>Select Department</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="IT">IT</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Business">Business</option>
+                            <option value="Compliance">Compliance</option>
+                            <option value="Data">Data</option>
+                            <option value="Quality Assurance">Quality Assurance</option>
+                            <option value="Design">Design</option>
+                            <option value="Risk">Risk</option>
+                        </select>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                    <div class="input-box">
+                        <select id="reg-role" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Assistant">Assistant</option>
+                            <option value="Executive">Executive</option>
+                            <option value="Analyst">Analyst</option>
+                            <option value="Intern">Intern</option>
+                            <option value="Sales Manager">Sales Manager</option>
+                            <option value="Credit Officer">Credit Officer</option>
+                            <option value="Customer Support">Customer Support</option>
+                            <option value="Security Engineer">Security Engineer</option>
+                            <option value="Business Analyst">Business Analyst</option>
+                            <option value="HR Manager">HR Manager</option>
+                        </select>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" id="reg-manager-id" placeholder="Manager ID" required>
+                        <i class='bx bxs-certification'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" id="reg-password" placeholder="Password" required>
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" id="reg-confirm-password" placeholder="Confirm Password" required>
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
                 </div>
                 <button type = "submit" class="btn register-btn">Register</button>
                 <p>or register with the social platforms</p>

@@ -78,3 +78,61 @@ if (loginForm) {
         }
     });
 }
+
+// Register Form Handling
+const registerForm = document.querySelector('.form-box.register form');
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const password = document.getElementById('reg-password').value;
+        const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+
+        const regBtn = registerForm.querySelector('.register-btn');
+        const originalBtnText = regBtn.textContent;
+        regBtn.textContent = 'Registering...';
+        regBtn.disabled = true;
+
+        const data = {
+            employee_id: document.getElementById('reg-employee-id').value,
+            full_name: document.getElementById('reg-full-name').value,
+            email: document.getElementById('reg-email').value,
+            department: document.getElementById('reg-department').value,
+            role: document.getElementById('reg-role').value,
+            manager_id: document.getElementById('reg-manager-id').value,
+            password: password
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Registration successful! Please login.');
+                // Switch back to login form
+                document.querySelector('.container').classList.remove('active');
+                registerForm.reset();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.detail || 'Registration failed.');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert('Failed to connect to the authentication server.');
+        } finally {
+            regBtn.textContent = originalBtnText;
+            regBtn.disabled = false;
+        }
+    });
+}
+
