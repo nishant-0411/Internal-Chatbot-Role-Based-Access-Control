@@ -28,8 +28,8 @@ if (passwordInputs.length >= 2) {
 }
 
 // API Configuration
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8000'
+const API_BASE_URL = ['localhost', '127.0.0.1', '[::1]', '::1', '[::]', '::'].includes(window.location.hostname)
+    ? 'http://127.0.0.1:8000'
     : window.location.origin;
 
 // Login Form Handling
@@ -64,7 +64,7 @@ if (loginForm) {
                 const data = await response.json();
                 localStorage.setItem('access_token', data.access_token);
                 // Redirect to homepage
-                window.location.href = '../home page/home_page.html';
+                window.location.href = '/home%20page/home_page.html';
             } else {
                 const errorData = await response.json();
                 alert(errorData.detail || 'Invalid username or password.');
@@ -80,7 +80,7 @@ if (loginForm) {
 }
 
 // Register Form Handling
-const registerForm = document.querySelector('.form-box.register form');
+const registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
