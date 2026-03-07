@@ -27,12 +27,30 @@ if (passwordInputs.length >= 2) {
     confirmPassword.addEventListener('keyup', validatePassword);
 }
 
-// API Configuration
+const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+togglePasswordIcons.forEach(icon => {
+    icon.addEventListener('click', function () {
+        const inputField = this.previousElementSibling;
+
+        if (inputField && inputField.tagName === 'INPUT') {
+            const type = inputField.getAttribute('type') === 'password' ? 'text' : 'password';
+            inputField.setAttribute('type', type);
+
+            if (type === 'password') {
+                this.classList.remove('bx-show');
+                this.classList.add('bx-hide');
+            } else {
+                this.classList.remove('bx-hide');
+                this.classList.add('bx-show');
+            }
+        }
+    });
+});
+
 const API_BASE_URL = ['localhost', '127.0.0.1', '[::1]', '::1', '[::]', '::'].includes(window.location.hostname)
     ? 'http://127.0.0.1:8000'
     : window.location.origin;
 
-// Login Form Handling
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -41,8 +59,6 @@ if (loginForm) {
         const username = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginBtn = loginForm.querySelector('.login-btn');
-
-        // Show loading state
         const originalBtnText = loginBtn.textContent;
         loginBtn.textContent = 'Logging in...';
         loginBtn.disabled = true;
@@ -63,7 +79,6 @@ if (loginForm) {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem('access_token', data.access_token);
-                // Redirect to homepage
                 window.location.href = '/home%20page/home_page.html';
             } else {
                 const errorData = await response.json();
@@ -79,7 +94,6 @@ if (loginForm) {
     });
 }
 
-// Register Form Handling
 const registerForm = document.getElementById('register-form');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
@@ -119,7 +133,6 @@ if (registerForm) {
 
             if (response.ok) {
                 alert('Registration successful! Please login.');
-                // Switch back to login form
                 document.querySelector('.container').classList.remove('active');
                 registerForm.reset();
             } else {

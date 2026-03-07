@@ -193,7 +193,6 @@ body {
     transform: translateX(4px);
 }
 
-/* Main Content Styles */
 .main-content {
     flex-grow: 1;
     position: relative;
@@ -201,7 +200,6 @@ body {
     width: 100%;
 }
 
-/* Menu Button Styles */
 .menu-btn {
     position: absolute;
     top: 24px;

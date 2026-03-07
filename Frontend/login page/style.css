@@ -50,19 +50,16 @@ body {
     transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* LOGIN (visible initially) */
 .form-box.login {
     right: 0;
     transform: translateX(0);
 }
 
-/* REGISTER (hidden left side) */
 .form-box.register {
     left: 0;
     transform: translateX(-100%);
 }
 
-/* CLICK REGISTER */
 .container.active .form-box.login {
     transform: translateX(100%);
 }
@@ -119,6 +116,14 @@ form {
     font-size: 20px;
     color: var(--placeholder-color);
     transition: color 0.3s ease;
+}
+
+.input-box .toggle-password {
+    cursor: pointer;
+}
+
+.input-box .toggle-password:hover {
+    color: var(--text-main);
 }
 
 .input-box input:focus~i,

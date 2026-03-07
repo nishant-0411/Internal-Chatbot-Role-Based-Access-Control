@@ -4,12 +4,11 @@ const chatsContainer = document.querySelector('.chats-container');
 const conatiner = document.querySelector('.container');
 const fileInput = document.querySelector('#file-input');
 const fileUploadWrapper = document.querySelector('.file-upload-wrapper');
-// API Configuration
+
 const API_BASE_URL = ['localhost', '127.0.0.1', '[::1]', '::1', '[::]', '::'].includes(window.location.hostname)
     ? 'http://127.0.0.1:8000'
     : window.location.origin;
 
-// Auth Guard
 const accessToken = localStorage.getItem('access_token');
 if (!accessToken) {
     window.location.href = '../login page/login.html';
@@ -18,8 +17,8 @@ if (!accessToken) {
 const userData = { messages: "", files: [] };
 let userMessages = "";
 const chatHistory = [];
-const savedSessions = {}; // Store raw HTML snapshots of chats
-let currentChatId = Date.now().toString(); // unique ID for active session
+const savedSessions = {};
+let currentChatId = Date.now().toString();
 
 const createmessageElement = (messageHtml, ...messageType) => {
     const messageDiv = document.createElement('div');
@@ -98,7 +97,6 @@ const generateChatbotResponse = async (chatbotmessageDiv) => {
             scrollToBottom();
         }
 
-        // Final render without cursor
         textElement.innerHTML = parseMarkdown(chatbotResponse.trim());
 
         chatHistory.push({ role: "model", parts: [{ text: chatbotResponse }] });
@@ -113,12 +111,11 @@ const generateChatbotResponse = async (chatbotmessageDiv) => {
     }
 }
 
-// Simple parsing for basic markdown (bold, italic, code). Add more if needed.
 const parseMarkdown = (text) => {
-    let result = text.replace(/\\n/g, '<br>'); // Newlines
-    result = result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
-    result = result.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
-    result = result.replace(/`(.*?)`/g, '<code>$1</code>'); // Inline Code
+    let result = text.replace(/\\n/g, '<br>');
+    result = result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    result = result.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    result = result.replace(/`(.*?)`/g, '<code>$1</code>');
     return result;
 }
 const handleformSubmit = (e) => {
@@ -126,7 +123,6 @@ const handleformSubmit = (e) => {
     const userMessages = promptInput.value.trim();
     if (userMessages === "") return;
 
-    // Hide Welcome Header when a chat starts
     const appHeader = document.querySelector(".app-header");
     if (appHeader && chatsContainer.children.length === 0) {
         appHeader.style.display = "none";
@@ -162,7 +158,6 @@ const handleformSubmit = (e) => {
     chatsContainer.appendChild(usermessageDiv);
     scrollToBottom();
     setTimeout(() => {
-        // Create the loading indicator dots container
         const chatbotmessageHtml = `<div class="message-text"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
         const chatbotmessageDiv = createmessageElement(chatbotmessageHtml, "chatbot-message", "loading");
         chatsContainer.appendChild(chatbotmessageDiv);
@@ -178,7 +173,6 @@ const filePreviewContainer = document.getElementById('file-preview-container');
 fileInput.addEventListener('change', () => {
     const files = Array.from(fileInput.files);
 
-    // Check if total files will exceed 8
     if (userData.files.length + files.length > 8) {
         alert("You can only upload a maximum of 8 files at a time.");
         fileInput.value = "";
@@ -193,11 +187,9 @@ fileInput.addEventListener('change', () => {
         reader.onload = (e) => {
             const base64String = e.target.result.split(',')[1];
 
-            // Store file data
             const fileObj = { fileName: file.name, data: base64String, mime_type: file.type, isImage };
             userData.files.push(fileObj);
 
-            // Create preview item DOM
             const previewItem = document.createElement('div');
             previewItem.classList.add('file-preview-item');
 
@@ -207,7 +199,6 @@ fileInput.addEventListener('change', () => {
                 previewItem.innerHTML = `<i class="fa-regular fa-file file-icon"></i>`;
             }
 
-            // Individual cancel button
             const cancelBtn = document.createElement('button');
             cancelBtn.classList.add('cancel-upload-button');
             cancelBtn.type = 'button';
@@ -226,7 +217,6 @@ fileInput.addEventListener('change', () => {
         }
     });
 
-    // Clear input so same file can be uploaded again if removed
     fileInput.value = "";
 });
 promptForm.addEventListener('submit', handleformSubmit);
@@ -236,7 +226,6 @@ document.querySelector('#add-file-button').addEventListener('click', () => {
     fileInput.click();
 });
 
-// Profile Data
 const fetchUserProfile = async () => {
     try {
         const token = localStorage.getItem('access_token');
@@ -277,7 +266,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const chatHistoryList = document.getElementById("chat-history-list");
 
-    // Hamburger Menu Logic
     const menuBtn = document.getElementById("menu-btn");
     const sidebar = document.querySelector(".sidebar");
     const sidebarOverlay = document.getElementById("sidebar-overlay");
@@ -294,7 +282,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // New Chat logic
     const newChatBtn = document.getElementById("new-chat-btn");
     const appHeader = document.querySelector(".app-header");
 
@@ -306,19 +293,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 previewText = previewText.substring(0, 25) + "...";
             }
 
-            // Only add sidebar item if this session wasn't already saved
             if (!savedSessions[currentChatId]) {
                 const li = document.createElement("li");
                 li.classList.add("chat-history-item");
                 li.innerHTML = `<i class="fa-regular fa-message"></i> <span>${previewText}</span>`;
-                li.dataset.chatId = currentChatId; // Store ID on the element
+                li.dataset.chatId = currentChatId;
 
-                // Add click listener to restore this chat
                 li.addEventListener("click", () => {
-                    // Save current active chat before swapping
                     if (chatsContainer.children.length > 0) saveCurrentChat();
 
-                    // Restore clicked chat
                     const clickedId = li.dataset.chatId;
                     if (savedSessions[clickedId]) {
                         chatsContainer.innerHTML = savedSessions[clickedId];
@@ -330,7 +313,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 chatHistoryList.insertBefore(li, chatHistoryList.firstChild);
             }
-            // Save or update the HTML snapshot in memory
             savedSessions[currentChatId] = chatsContainer.innerHTML;
         }
     };
@@ -339,17 +321,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         newChatBtn.addEventListener("click", () => {
             saveCurrentChat();
 
-            // Wipe the chat container visual and memory for a new session
             if (chatsContainer) chatsContainer.innerHTML = "";
             chatHistory.length = 0;
-            currentChatId = Date.now().toString(); // reset ID for new session
-
-            // Reveal Welcome Header
-            if (appHeader) appHeader.style.display = ""; // remove inline "none" constraint
+            currentChatId = Date.now().toString();
+            if (appHeader) appHeader.style.display = "";
         });
     }
 
-    // Logout logic
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
