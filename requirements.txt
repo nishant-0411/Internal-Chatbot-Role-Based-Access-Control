@@ -1,15 +1,13 @@
 python-dotenv
-tiktoken
 fastapi
 uvicorn
 pandas 
-scikit-learn
 sqlalchemy
 passlib[bcrypt] 
-python-jose
-ollama # ollama pull phi3
+python-jose[cryptography]
 redis
-streamlit
 requests
 pyyaml
 rank_bm25
+pydantic
+pydantic-settings

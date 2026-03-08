@@ -3,7 +3,7 @@
 A fully offline **Role-Based Access Control (RBAC) AI Assistant** built using:
 
 - 🔐 FastAPI (JWT Authentication)
-- 🗂 BM25 / TF-IDF Lexical PageIndex (Custom Inverted Index)
+- 🗂 In-Memory BM25 Lexical Search (Rank-BM25)
 - 🧠 Vectorless Keyword Search (High Precision, Zero Dep)
 - 🤖 Ollama + Phi3 (Local LLM)
 - 📊 Department-Based Access Control
@@ -18,7 +18,7 @@ This project simulates a real **enterprise internal knowledge assistant** that r
 - ✅ JWT-based authentication
 - ✅ Role-Based Access Control (RBAC)
 - ✅ Department-level document filtering
-- ✅ Sub-second lexical similarity search using inverted indexes
+- ✅ Sub-second lexical similarity search using in-memory BM25
 - ✅ Fully offline LLM (no API key required)
 - ✅ Context-aware RAG pipeline
 - ✅ Clean service-based architecture
@@ -34,7 +34,7 @@ FastAPI (JWT Auth)
 ↓  
 Role Validation  
 ↓  
-Lexical PageIndex (Inverted Index Search + Metadata Filter)  
+In-Memory BM25 Search Engine (Lexical + Metadata Filter)  
 ↓  
 Ollama (Local LLM - Phi3)  
 ↓  
@@ -63,7 +63,6 @@ Internal-Chatbot-RBAC/
 │   │   ├── streaming.py
 │
 ├── data/                # Department documents
-├── page_index/          # Offline lexical inverted index storage
 ├── main.py
 ├── requirements.txt
 └── README.md
@@ -89,7 +88,7 @@ Internal-Chatbot-RBAC/
 1. User logs in → receives JWT token  
 2. User sends query to `/chat`  
 3. Role extracted from JWT  
-4. TF-IDF retrieval targets optimal content section filtered by department  
+4. BM25 retrieval targets optimal content section filtered by department  
 5. Retrieved context passed to local LLM  
 6. LLM generates answer using ONLY internal context  
 
@@ -192,20 +191,9 @@ Leave this running in background.
 
 ---
 
-# 📚 7️⃣ Build Document PageIndex
+# 📚 7️⃣ Document Indexing
 
-Run:
-
-```bash
-python app/services/index_builder.py
-```
-
-This will:
-
-- Read department folders inside `/data`
-- Split documents into chunks
-- Extract section tokens
-- Generate inverted and IDF indices inside `page_index/`
+The application automatically builds the in-memory BM25 index on startup by reading the markdown files in the `/data` directory. No manual step is required.
 
 ---
 
@@ -286,8 +274,8 @@ Includes:
 |------------|------------|
 | Backend | FastAPI |
 | Auth | JWT |
-| Search Engine | Custom TF-IDF PageIndex |
-| Extraction | Regex / NLTK Tokenization |
+| Search Engine | In-Memory BM25 (Rank-BM25) |
+| Extraction | Regex / Custom Stop Words |
 | LLM | Ollama (Phi3) |
 | Chunking | Markdown Section Splitting |
 
